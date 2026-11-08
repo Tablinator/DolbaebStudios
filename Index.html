@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dolbaeb Studios</title>
+    <link rel="icon" id="favicon" type="image/png" href="i.png">
+    <style>
+        :root {
+            --bg-color: #f7f4ed;
+            --text-main: #1a1a1a;
+            --text-sub: #555;
+            --card-bg: #ffffff;
+            --border-color: #1a1a1a;
+            --shadow-color: #1a1a1a;
+            --glow-effect: none;
+            --pfp-border: #1a1a1a;
+            --wire-color: #222;
+            --pin-color: #333;
+        }
+
+        body.dark-theme {
+            --bg-color: #0f111a;
+            --text-main: #ffd56b;
+            --text-sub: #e6c875;
+            --card-bg: #161b26;
+            --border-color: #ffd56b;
+            --shadow-color: rgba(255, 213, 107, 0.3);
+            --glow-effect: 0 0 12px rgba(255, 213, 107, 0.5);
+            --pfp-border: #ffd56b;
+            --wire-color: #333;
+            --pin-color: #333;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px 80px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            overflow-x: hidden;
+            user-select: none;
+            position: relative;
+        }
+
+        #canvas-wire {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100%;
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        .header-container {
+            text-align: center;
+            margin-bottom: 50px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo-img {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border-radius: 50%;
+            background: #fff;
+            padding: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: box-shadow 0.4s ease, transform 0.2s ease;
+        }
+
+        .logo-img:active {
+            transform: scale(0.92);
+        }
+
+        body.dark-theme .logo-img {
+            box-shadow: 0 0 25px rgba(255, 213, 107, 0.6);
+            background: #0d131f;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin: 0;
+            letter-spacing: 1px;
+            text-shadow: var(--glow-effect);
+            transition: text-shadow 0.4s ease;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin: 60px 0 30px 0;
+            text-align: center;
+            letter-spacing: 1px;
+            text-shadow: var(--glow-effect);
+            border-bottom: 3px solid var(--border-color);
+            padding-bottom: 8px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px 60px;
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .team-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .pfp-circle {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            border: 3px solid var(--pfp-border);
+            object-fit: cover;
+            background-color: #ffffff;
+            flex-shrink: 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            transition: border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        body.dark-theme .pfp-circle {
+            box-shadow: var(--glow-effect);
+        }
+
+        .job-box {
+            flex-grow: 1;
+            background: var(--card-bg);
+            border: 3px solid var(--border-color);
+            border-radius: 8px;
+            padding: 18px 20px;
+            box-shadow: 4px 4px 0px var(--shadow-color);
+            transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .member-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 0 0 6px 0;
+            color: var(--text-main);
+            text-shadow: var(--glow-effect);
+        }
+
+        .member-job {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            margin: 0;
+        }
+
+        /* Games Section Styling */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            border: 3px solid var(--border-color);
+            border-radius: 10px;
+            padding: 24px;
+            box-shadow: 5px 5px 0px var(--shadow-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .game-cover-wrapper {
+            width: 180px;
+            height: 180px;
+            border-radius: 8px;
+            border: 3px solid var(--border-color);
+            overflow: hidden;
+            margin: 15px 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+            background-color: #fff;
+        }
+
+        .game-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            transform: scale(1.35);
+            transform-origin: center;
+        }
+
+        .game-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin: 0 0 8px 0;
+            color: var(--text-main);
+            text-shadow: var(--glow-effect);
+        }
+
+        .game-desc {
+            font-size: 0.95rem;
+            color: var(--text-sub);
+            margin: 0 0 14px 0;
+            line-height: 1.4;
+        }
+
+        .game-year {
+            font-size: 0.9rem;
+            font-weight: bold;
+            padding: 4px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            background: var(--bg-color);
+            color: var(--text-main);
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+
+        .download-link {
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: var(--text-main);
+            text-decoration: underline;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .download-link:hover {
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            .team-grid, .games-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas-wire"></canvas>
+
+    <!-- Header Section -->
+    <div class="header-container">
+        <!-- Main Logo uses lowercase 'i' -->
+        <img id="logo" src="i.png" alt="Dolbaeb Studios Logo" class="logo-img" onerror="handleImgError(this, 'i')">
+        <h1>Dolbaeb Studios</h1>
+    </div>
+
+    <!-- 2x2 Team Layout -->
+    <div class="team-grid">
+        <!-- Member 1: Table -->
+        <div class="team-card">
+            <img src="a1.png" alt="Table PFP" class="pfp-circle" onerror="handleImgError(this, 'a1')">
+            <div class="job-box">
+                <p class="member-name">Table</p>
+                <p class="member-job">Game Dev</p>
+            </div>
+        </div>
+
+        <!-- Member 2: дикий огурец -->
+        <div class="team-card">
+            <img src="a2.png" alt="Game Tester PFP" class="pfp-circle" onerror="handleImgError(this, 'a2')">
+            <div class="job-box">
+                <p class="member-name">дикий огурец</p>
+                <p class="member-job">Game Tester</p>
+            </div>
+        </div>
+
+        <!-- Member 3: донер -->
+        <div class="team-card">
+            <img src="a3.png" alt="Moral Support PFP" class="pfp-circle" onerror="handleImgError(this, 'a3')">
+            <div class="job-box">
+                <p class="member-name">донер</p>
+                <p class="member-job">Moral Support</p>
+            </div>
+        </div>
+
+        <!-- Member 4: тюлень -->
+        <div class="team-card">
+            <img src="a4.png" alt="Ideas & Illustration PFP" class="pfp-circle" onerror="handleImgError(this, 'a4')">
+            <div class="job-box">
+                <p class="member-name">тюлень</p>
+                <p class="member-job">Idea suggestor</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Games Section -->
+    <h2 class="section-title">Games & Projects</h2>
+    <div class="games-grid">
+        <!-- Short Circuit -->
+        <div class="game-card">
+            <div class="game-cover-wrapper">
+                <img src="b.png" alt="Short Circuit Game Cover" class="game-cover" onerror="handleImgError(this, 'b')">
+            </div>
+            <div class="game-title">Short Circuit</div>
+            <div class="game-desc">A sandbox game about making circuits while an AI narrator watches and judges your every move.</div>
+            <div class="game-year">Drop Year: 2026</div>
+            <div>
+                <a href="https://github.com" target="_blank" class="download-link">download</a>
+            </div>
+        </div>
+
+        <!-- Unqualified -->
+        <div class="game-card">
+            <div class="game-cover-wrapper">
+                <img src="u.png" alt="Unqualified Game Cover" class="game-cover" onerror="handleImgError(this, 'u')">
+            </div>
+            <div class="game-title">Unqualified</div>
+            <div class="game-desc">A 4-player coop shooter where you and your friends team up to execute tactical building clearances and chaotic missions.</div>
+            <div class="game-year">Drop Year: 2027</div>
+        </div>
+    </div>
+
+    <script>
+        // Logo Easter Egg Logic (5 clicks -> Random lowercase i2 to i5 for 5s + a.mp3 for 5s)
+        let logoClicks = 0;
+        let clickTimer = null;
+        let currentRandomBase = 'i2';
+        const logoImg = document.getElementById('logo');
+        const easterEggAudio = new Audio('a.mp3');
+        let isEasterEggActive = false;
+
+        logoImg.addEventListener('click', () => {
+            if (isEasterEggActive) return;
+
+            logoClicks++;
+            clearTimeout(clickTimer);
+
+            if (logoClicks >= 5) {
+                triggerEasterEgg();
+                logoClicks = 0;
+            } else {
+                clickTimer = setTimeout(() => {
+                    logoClicks = 0;
+                }, 1500);
+            }
+        });
+
+        function triggerEasterEgg() {
+            isEasterEggActive = true;
+            
+            // Pick a random number between 2 and 5 (i2, i3, i4, i5) using lowercase 'i'
+            const randomNum = Math.floor(Math.random() * 4) + 2;
+            currentRandomBase = 'i' + randomNum;
+            
+            logoImg.dataset.logoBase = currentRandomBase;
+            logoImg.dataset.logoAttempt = '0';
+            const logoExtension = randomNum === 4 ? '.gif' : '.jpeg';
+            logoImg.src = currentRandomBase + logoExtension;
+            
+            // Play audio
+            easterEggAudio.currentTime = 0;
+            easterEggAudio.play().catch(e => console.log("Audio play blocked or missing:", e));
+
+            // Revert logo back to lowercase 'i.png' and stop audio after 5 seconds
+            setTimeout(() => {
+                isEasterEggActive = false;
+                logoImg.dataset.logoBase = 'i';
+                logoImg.dataset.logoAttempt = '0';
+                logoImg.src = 'i.png';
+                easterEggAudio.pause();
+                easterEggAudio.currentTime = 0;
+            }, 5000);
+        }
+
+        // Logo variants have preferred extensions, with fallbacks if filenames differ.
+        function handleImgError(img, baseName) {
+            const missingImage = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><rect width='180' height='180' fill='%23222533'/><text x='90' y='95' font-size='14' text-anchor='middle' fill='%23aaa'>IMG MISSING</text></svg>";
+
+            if (img.id === 'logo') {
+                const currentBase = img.dataset.logoBase || baseName;
+                const candidates = currentBase === 'i'
+                    ? ['i.png']
+                    : currentBase === 'i4'
+                        ? ['i4.gif', 'i4.png', 'i4.jpg', 'i4.jpeg', 'i4.webp']
+                        : [currentBase + '.jpeg', currentBase + '.jpg', currentBase + '.png', currentBase + '.webp', currentBase + '.gif'];
+
+                const attempt = Number(img.dataset.logoAttempt || '0');
+                if (attempt < candidates.length) {
+                    img.dataset.logoAttempt = String(attempt + 1);
+                    img.src = candidates[attempt];
+                    return;
+                }
+
+                // If an easter-egg image is missing, restore the normal logo.
+                if (currentBase !== 'i') {
+                    img.dataset.logoBase = 'i';
+                    img.dataset.logoAttempt = '0';
+                    img.src = 'i.png';
+                    return;
+                }
+
+                img.onerror = null;
+                img.src = missingImage;
+                return;
+            }
+
+            const extensions = ['.png', '.jpg', '.jpeg', '.webp'];
+            const targetBase = baseName;
+            if (img.dataset.fallbackBase !== targetBase) {
+                img.dataset.fallbackBase = targetBase;
+                img.dataset.attempt = '0';
+            }
+
+            const nextAttempt = Number(img.dataset.attempt || '0') + 1;
+            if (nextAttempt < extensions.length) {
+                img.dataset.attempt = String(nextAttempt);
+                img.src = targetBase + extensions[nextAttempt];
+                return;
+            }
+
+            img.onerror = null;
+            img.src = missingImage;
+        }
+
+        // The main logo and favicon are both i.png.
+        const fav = document.getElementById('favicon');
+        fav.href = 'i.png';
+
+        // Physics Engine - Wire Hanging directly from Top-Left Corner
+        const canvas = document.getElementById('canvas-wire');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = Math.max(document.body.scrollHeight, window.innerHeight);
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const pin = { x: 75, y: 190, r: 12 };
+
+        const segments = 12;
+        const segmentLength = 20;
+        let points = [];
+        let isDragging = false;
+        let isConnected = false;
+
+        for (let i = 0; i < segments; i++) {
+            points.push({
+                x: 15 + i * 5,
+                y: 0 + i * 15,
+                oldx: 15 + i * 5,
+                oldy: 0 + i * 15,
+                pinned: i === 0
+            });
+        }
+
+        let mouseX = 0, mouseY = 0;
+        window.addEventListener('mousedown', (e) => {
+            const plug = points[segments - 1];
+            const dist = Math.hypot(e.pageX - plug.x, e.pageY - plug.y);
+            if (dist < 35) {
+                isDragging = true;
+                isConnected = false;
+                document.body.classList.remove('dark-theme');
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.pageX;
+            mouseY = e.pageY;
+            if (isDragging) {
+                const plug = points[segments - 1];
+                plug.x = mouseX;
+                plug.y = mouseY;
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                const plug = points[segments - 1];
+                const distToPin = Math.hypot(plug.x - pin.x, plug.y - pin.y);
+                if (distToPin < 40) {
+                    isConnected = true;
+                    plug.x = pin.x;
+                    plug.y = pin.y;
+                    document.body.classList.add('dark-theme');
+                }
+            }
+        });
+
+        function updatePhysics() {
+            const gravity = 0.45;
+            const friction = 0.98;
+
+            for (let i = 0; i < points.length; i++) {
+                let p = points[i];
+                if (p.pinned) continue;
+                if (i === segments - 1 && (isDragging || isConnected)) {
+                    if (isConnected) {
+                        p.x = pin.x;
+                        p.y = pin.y;
+                    }
+                    continue;
+                }
+
+                let vx = (p.x - p.oldx) * friction;
+                let vy = (p.y - p.oldy) * friction;
+
+                p.oldx = p.x;
+                p.oldy = p.y;
+
+                p.x += vx;
+                p.y += vy + gravity;
+            }
+
+            for (let j = 0; j < 6; j++) {
+                for (let i = 0; i < points.length - 1; i++) {
+                    let p1 = points[i];
+                    let p2 = points[i + 1];
+
+                    let dx = p2.x - p1.x;
+                    let dy = p2.y - p1.y;
+                    let dist = Math.hypot(dx, dy);
+                    let diff = segmentLength - dist;
+                    let percent = diff / dist / 2;
+                    let offsetX = dx * percent;
+                    let offsetY = dy * percent;
+
+                    if (!p1.pinned) {
+                        p1.x -= offsetX;
+                        p1.y -= offsetY;
+                    }
+                    if (!p2.pinned || (i + 1 === segments - 1 && !isDragging && !isConnected)) {
+                        p2.x += offsetX;
+                        p2.y += offsetY;
+                    }
+                }
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(pin.x, pin.y, pin.r, 0, Math.PI * 2);
+            ctx.fillStyle = '#333';
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.arc(pin.x, pin.y, 5, 0, Math.PI * 2);
+            ctx.fillStyle = isConnected ? '#111' : '#666';
+            ctx.fill();
+            ctx.restore();
+
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = '#222';
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+
+            const plug = points[segments - 1];
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(plug.x, plug.y, 9, 0, Math.PI * 2);
+            ctx.fillStyle = '#e67e22';
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.rect(plug.x - 3, plug.y - 3, 6, 6);
+            ctx.fillStyle = '#fff';
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function loop() {
+            updatePhysics();
+            draw();
+            requestAnimationFrame(loop);
+        }
+        loop();
+    </script>
+
+</body>
+</html>
